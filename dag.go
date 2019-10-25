@@ -93,20 +93,25 @@ func NewDag(input *DagConfig) (*Dag, error) {
 }
 
 // AddTask adds a task to a dag
-func (d Dag) AddTask(t TaskInterface) error {
+func (d *Dag) AddTask(t TaskInterface) error {
 	_, ok := d.taskDict[t.GetID()]
 	if ok {
 		return errors.Errorf("task %s already exists in dag", t.GetID())
 	}
 	t.SetState(state.Pending)
 	d.taskDict[t.GetID()] = t
+	t.SetDag(d)
 	return nil
 }
 
 // NewBash creates a new bash operators on a dag
 func (d *Dag) NewBash(o *BashOperator) (*BashOperator, error) {
-	d.AddTask(o)
-	return o, nil
+	return o, d.AddTask(o)
+}
+
+// NewGo creates a new go operator on a dag
+func (d *Dag) NewGo(o *GoOperator) (*GoOperator, error) {
+	return o, d.AddTask(o)
 }
 
 func (d *Dag) getTask(taskID string) (TaskInterface, error) {
