@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -17,7 +18,6 @@ func TestNewDag(t *testing.T) {
 	t1, err := dag.NewBash(&BashOperator{
 		TaskID:      "print date",
 		BashCommand: "date",
-		Dag:         dag,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -27,7 +27,6 @@ func TestNewDag(t *testing.T) {
 		TaskID:      "sleep",
 		BashCommand: "sleep 5",
 		Retries:     3,
-		Dag:         dag,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -36,15 +35,22 @@ func TestNewDag(t *testing.T) {
 	t3, err := dag.NewBash(&BashOperator{
 		TaskID:      "hello world",
 		BashCommand: "echo hello world",
-		Dag:         dag,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	t4, err := dag.NewBash(&BashOperator{
 		TaskID:      "hello world2",
 		BashCommand: "echo hello world",
-		Dag:         dag,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t5, err := dag.NewGo(&GoOperator{
+		TaskID: "go program",
+		GoFunc: func() error { fmt.Println("hello from go!"); return nil },
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -53,6 +59,7 @@ func TestNewDag(t *testing.T) {
 	t2.SetUpstream(t1)
 	t3.SetUpstream(t1)
 	t4.SetUpstream(t3)
+	t5.SetUpstream(t4)
 
 	if err := dag.TreeView(); err != nil {
 		t.Fatal(err)
