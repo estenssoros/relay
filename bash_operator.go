@@ -25,63 +25,63 @@ type BashOperator struct {
 }
 
 // GetID returns the tag id for an operator
-func (b *BashOperator) GetID() string {
-	return b.TaskID
+func (o *BashOperator) GetID() string {
+	return o.TaskID
 }
 
 // GetDag returns the dag for an operator
-func (b *BashOperator) GetDag() *Dag {
-	return b.Dag
+func (o *BashOperator) GetDag() *Dag {
+	return o.Dag
 }
 
 // HasDag checks to see if the operators dag is nil
-func (b *BashOperator) HasDag() bool {
-	return b.Dag != nil
+func (o *BashOperator) HasDag() bool {
+	return o.Dag != nil
 }
 
 // SetDag sets the dag on an operator
-func (b *BashOperator) SetDag(dag *Dag) {
-	b.Dag = dag
+func (o *BashOperator) SetDag(dag *Dag) {
+	o.Dag = dag
 }
 
 // addDownstreamTask adds a task id to the downstream list
-func (b *BashOperator) addDownstreamTask(taskID string) {
-	b.downstreamTaskIDs = append(b.downstreamTaskIDs, taskID)
+func (o *BashOperator) addDownstreamTask(taskID string) {
+	o.downstreamTaskIDs = append(o.downstreamTaskIDs, taskID)
 }
 
 // addUpstreamTask adds a task to the upstream list
-func (b *BashOperator) addUpstreamTask(taskID string) {
-	b.upstreamTaskIDs = append(b.upstreamTaskIDs, taskID)
+func (o *BashOperator) addUpstreamTask(taskID string) {
+	o.upstreamTaskIDs = append(o.upstreamTaskIDs, taskID)
 }
 
 // SetUpstream creates relationships between tasks
-func (b *BashOperator) SetUpstream(task TaskInterface) {
-	setRelatives(b, task, true)
+func (o *BashOperator) SetUpstream(task TaskInterface) {
+	setRelatives(o, task, true)
 }
 
 // SetDownStream creates relationships between tasks
-func (b *BashOperator) SetDownStream(task TaskInterface) {
-	setRelatives(b, task, false)
+func (o *BashOperator) SetDownStream(task TaskInterface) {
+	setRelatives(o, task, false)
 }
 
-func (b BashOperator) String() string {
-	return b.TaskID
+func (o BashOperator) String() string {
+	return o.TaskID
 }
 
-func (b *BashOperator) FormattedID() string {
-	return fmt.Sprintf("[TASK] %s", b.TaskID)
+func (o *BashOperator) FormattedID() string {
+	return fmt.Sprintf("[TASK] %s", o.TaskID)
 }
 
 // hasUpstream returns true if the operators has upstream tasks
-func (b *BashOperator) hasUpstream() bool {
-	return len(b.upstreamTaskIDs) > 0
+func (o *BashOperator) hasUpstream() bool {
+	return len(o.upstreamTaskIDs) > 0
 }
 
 // downstreamList returns the list of downstream tasks
-func (b *BashOperator) downstreamList() []TaskInterface {
+func (o *BashOperator) downstreamList() []TaskInterface {
 	lst := []TaskInterface{}
-	for _, taskID := range b.downstreamTaskIDs {
-		task, err := b.Dag.getTask(taskID)
+	for _, taskID := range o.downstreamTaskIDs {
+		task, err := o.Dag.getTask(taskID)
 		if err != nil {
 			continue
 		}
@@ -90,10 +90,10 @@ func (b *BashOperator) downstreamList() []TaskInterface {
 	return lst
 }
 
-func (b *BashOperator) upstreamList() []TaskInterface {
+func (o *BashOperator) upstreamList() []TaskInterface {
 	lst := []TaskInterface{}
-	for _, taskID := range b.upstreamTaskIDs {
-		task, err := b.Dag.getTask(taskID)
+	for _, taskID := range o.upstreamTaskIDs {
+		task, err := o.Dag.getTask(taskID)
 		if err != nil {
 			continue
 		}
@@ -102,13 +102,13 @@ func (b *BashOperator) upstreamList() []TaskInterface {
 	return lst
 }
 
-func (b *BashOperator) IsRoot() bool {
-	return !b.hasUpstream()
+func (o *BashOperator) IsRoot() bool {
+	return !o.hasUpstream()
 }
 
 // Run run the bash operator
-func (b *BashOperator) Run() error {
-	cmdArgs := strings.Fields(b.BashCommand)
+func (o *BashOperator) Run() error {
+	cmdArgs := strings.Fields(o.BashCommand)
 	if len(cmdArgs) == 0 {
 		return errors.New("bash command had no args")
 	}
@@ -137,10 +137,10 @@ func (b *BashOperator) Run() error {
 	return nil
 }
 
-func (b *BashOperator) SetState(s state.State) {
-	b.State = s
+func (o *BashOperator) SetState(s state.State) {
+	o.State = s
 }
 
-func (b *BashOperator) GetState() state.State {
-	return b.State
+func (o *BashOperator) GetState() state.State {
+	return o.State
 }
