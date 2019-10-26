@@ -6,6 +6,7 @@ import (
 	"github.com/estenssoros/goflow/state"
 )
 
+// TaskInterface an interface for all operators on a DAG
 type TaskInterface interface {
 	String() string
 	GetID() string
@@ -13,8 +14,8 @@ type TaskInterface interface {
 	hasUpstream() bool
 	downstreamList() []TaskInterface
 	upstreamList() []TaskInterface
-	GetDag() *Dag
-	SetDag(*Dag)
+	GetDag() *DAG
+	SetDag(*DAG)
 	HasDag() bool
 	addDownstreamTask(string)
 	addUpstreamTask(string)

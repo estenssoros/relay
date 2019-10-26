@@ -12,19 +12,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Scheduler orchestrates the scheduling of dags
 type Scheduler struct {
-	Dags       map[string]*Dag
+	Dags       map[string]*DAG
 	DagNextRun map[string]time.Time
 	mu         sync.Mutex
 }
 
+// NewScheduler creates a new scheduler
 func NewScheduler() *Scheduler {
 	return &Scheduler{
-		Dags: map[string]*Dag{},
+		Dags: map[string]*DAG{},
 	}
 }
 
-func (s *Scheduler) AddDag(dag *Dag) error {
+// AddDag adds a dag to the scheduler
+func (s *Scheduler) AddDag(dag *DAG) error {
 	_, ok := s.Dags[dag.ID]
 	if ok {
 		return errors.Errorf("dag: %s allread registered", dag.ID)

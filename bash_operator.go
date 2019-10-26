@@ -13,9 +13,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// BashOperator runs a bash command
 type BashOperator struct {
 	TaskID            string
-	Dag               *Dag `json:"-"` // avoid recursion
+	DAG               *DAG `json:"-"` // avoid recursion
 	Retries           int
 	Message           string
 	BashCommand       string
@@ -30,18 +31,18 @@ func (o *BashOperator) GetID() string {
 }
 
 // GetDag returns the dag for an operator
-func (o *BashOperator) GetDag() *Dag {
-	return o.Dag
+func (o *BashOperator) GetDag() *DAG {
+	return o.DAG
 }
 
 // HasDag checks to see if the operators dag is nil
 func (o *BashOperator) HasDag() bool {
-	return o.Dag != nil
+	return o.DAG != nil
 }
 
 // SetDag sets the dag on an operator
-func (o *BashOperator) SetDag(dag *Dag) {
-	o.Dag = dag
+func (o *BashOperator) SetDag(dag *DAG) {
+	o.DAG = dag
 }
 
 // addDownstreamTask adds a task id to the downstream list
@@ -68,6 +69,7 @@ func (o BashOperator) String() string {
 	return o.TaskID
 }
 
+// FormattedID exports the formatted id for an operator
 func (o *BashOperator) FormattedID() string {
 	return fmt.Sprintf("[TASK] %s", o.TaskID)
 }
@@ -81,7 +83,7 @@ func (o *BashOperator) hasUpstream() bool {
 func (o *BashOperator) downstreamList() []TaskInterface {
 	lst := []TaskInterface{}
 	for _, taskID := range o.downstreamTaskIDs {
-		task, err := o.Dag.getTask(taskID)
+		task, err := o.DAG.getTask(taskID)
 		if err != nil {
 			continue
 		}
@@ -93,7 +95,7 @@ func (o *BashOperator) downstreamList() []TaskInterface {
 func (o *BashOperator) upstreamList() []TaskInterface {
 	lst := []TaskInterface{}
 	for _, taskID := range o.upstreamTaskIDs {
-		task, err := o.Dag.getTask(taskID)
+		task, err := o.DAG.getTask(taskID)
 		if err != nil {
 			continue
 		}
@@ -102,6 +104,7 @@ func (o *BashOperator) upstreamList() []TaskInterface {
 	return lst
 }
 
+// IsRoot checks to see if an operator has upstream tasks
 func (o *BashOperator) IsRoot() bool {
 	return !o.hasUpstream()
 }
@@ -137,10 +140,12 @@ func (o *BashOperator) Run() error {
 	return nil
 }
 
+// SetState sets the state on an operator
 func (o *BashOperator) SetState(s state.State) {
 	o.State = s
 }
 
+// GetState gets the state from an operator
 func (o *BashOperator) GetState() state.State {
 	return o.State
 }

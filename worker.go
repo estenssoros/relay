@@ -5,11 +5,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Worker multiprocessing unit that performs the actual task
 type Worker struct {
 	name string
 	kill chan struct{}
 }
 
+// NewWorker creates a new worker with a clever name
 func NewWorker() *Worker {
 	return &Worker{
 		name: namer.randomName(),
@@ -17,6 +19,7 @@ func NewWorker() *Worker {
 	}
 }
 
+// Start starts a worker workin
 func (w *Worker) Start(taskQueue <-chan TaskInterface, evalQueue chan<- TaskInterface) {
 	logrus.Infof("starter worker %s", w.name)
 	defer func() {

@@ -14,6 +14,7 @@ func init() {
 	}
 }
 
+// Namer creates clever names
 type Namer struct {
 	names map[string]struct{}
 }

@@ -22,6 +22,7 @@ func main() {
 	logrus.Infof("process took %v", time.Since(start))
 }
 
+// DagConfig basic config for a new dag
 type DagConfig struct {
 	ID               string
 	Description      string

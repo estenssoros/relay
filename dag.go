@@ -13,7 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Dag struct {
+// DAG Directed Acylcical Graph
+type DAG struct {
 	ID                   string
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
@@ -39,17 +40,18 @@ type Dag struct {
 	taskCount int
 }
 
-func (d Dag) FormattedID() string {
+// FormattedID formatted dag id
+func (d DAG) FormattedID() string {
 	return fmt.Sprintf("DAG[%s]", d.ID)
 }
 
-func (d Dag) String() string {
+func (d DAG) String() string {
 	ju, _ := json.Marshal(d)
 	return string(ju)
 }
 
 // Roots are the first tasks that need tp be run
-func (d *Dag) Roots() []TaskInterface {
+func (d *DAG) Roots() []TaskInterface {
 	tasks := []TaskInterface{}
 	for _, t := range d.taskDict {
 		if t.IsRoot() {
@@ -64,7 +66,7 @@ func printSeparator(sep string, num int) {
 }
 
 // Run runs a dag
-func (d *Dag) Run(ctx context.Context) error {
+func (d *DAG) Run(ctx context.Context) error {
 	start := time.Now()
 
 	runner := NewTaskRunner(d.taskDict)
@@ -83,8 +85,9 @@ func (d *Dag) Run(ctx context.Context) error {
 	return nil
 }
 
-func NewDag(input *DagConfig) (*Dag, error) {
-	return &Dag{
+// NewDag creats a new dag
+func NewDag(input *DagConfig) (*DAG, error) {
+	return &DAG{
 		ID:               input.ID,
 		Description:      input.Description,
 		ScheduleInterval: input.ScheduleInterval,
@@ -93,7 +96,7 @@ func NewDag(input *DagConfig) (*Dag, error) {
 }
 
 // AddTask adds a task to a dag
-func (d *Dag) AddTask(t TaskInterface) error {
+func (d *DAG) AddTask(t TaskInterface) error {
 	_, ok := d.taskDict[t.GetID()]
 	if ok {
 		return errors.Errorf("task %s already exists in dag", t.GetID())
@@ -105,16 +108,16 @@ func (d *Dag) AddTask(t TaskInterface) error {
 }
 
 // NewBash creates a new bash operators on a dag
-func (d *Dag) NewBash(o *BashOperator) (*BashOperator, error) {
+func (d *DAG) NewBash(o *BashOperator) (*BashOperator, error) {
 	return o, d.AddTask(o)
 }
 
 // NewGo creates a new go operator on a dag
-func (d *Dag) NewGo(o *GoOperator) (*GoOperator, error) {
+func (d *DAG) NewGo(o *GoOperator) (*GoOperator, error) {
 	return o, d.AddTask(o)
 }
 
-func (d *Dag) getTask(taskID string) (TaskInterface, error) {
+func (d *DAG) getTask(taskID string) (TaskInterface, error) {
 	t, ok := d.taskDict[taskID]
 	if !ok {
 		return nil, errors.Errorf("missing task %s", taskID)
@@ -132,7 +135,7 @@ func getUpstream(task TaskInterface, level int) error {
 }
 
 // TreeView shows an ascii tree representation of the DAG
-func (d *Dag) TreeView() error {
+func (d *DAG) TreeView() error {
 	printSeparator("-", 50)
 	fmt.Println(d.FormattedID(), "TREE VIEW")
 	printSeparator("-", 50)
@@ -147,7 +150,7 @@ func (d *Dag) TreeView() error {
 }
 
 // NextRun returns the next run time based on the chron expression
-func (d *Dag) NextRun() (time.Time, error) {
+func (d *DAG) NextRun() (time.Time, error) {
 	cron, err := cronexpr.Parse(d.ScheduleInterval)
 	if err != nil {
 		return time.Time{}, errors.Wrap(err, "cron parse")

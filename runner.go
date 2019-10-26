@@ -11,14 +11,14 @@ import (
 
 // DagRunner runs dags
 type DagRunner struct {
-	dagChan chan *Dag
+	dagChan chan *DAG
 	Error   chan error
 }
 
 // NewDagRunner creates a new dag runner
 func NewDagRunner() *DagRunner {
 	return &DagRunner{
-		dagChan: make(chan *Dag),
+		dagChan: make(chan *DAG),
 		Error:   make(chan error),
 	}
 }
@@ -40,7 +40,7 @@ func (r *DagRunner) Run(ctx context.Context) {
 }
 
 // RunDag  sends a dag to be run
-func (r *DagRunner) RunDag(dag *Dag) {
+func (r *DagRunner) RunDag(dag *DAG) {
 	r.dagChan <- dag
 }
 
