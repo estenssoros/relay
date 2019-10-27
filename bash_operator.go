@@ -20,14 +20,24 @@ type BashOperator struct {
 	Retries           int
 	Message           string
 	BashCommand       string
+	Dir               string
 	upstreamTaskIDs   []string
 	downstreamTaskIDs []string
 	State             state.State
 }
 
+func (o BashOperator) String() string {
+	return o.TaskID
+}
+
 // GetID returns the tag id for an operator
 func (o *BashOperator) GetID() string {
 	return o.TaskID
+}
+
+// FormattedID exports the formatted id for an operator
+func (o *BashOperator) FormattedID() string {
+	return fmt.Sprintf("[TASK] %s", o.TaskID)
 }
 
 // GetDag returns the dag for an operator
@@ -65,48 +75,29 @@ func (o *BashOperator) SetDownStream(task TaskInterface) {
 	setRelatives(o, task, false)
 }
 
-func (o BashOperator) String() string {
-	return o.TaskID
-}
-
-// FormattedID exports the formatted id for an operator
-func (o *BashOperator) FormattedID() string {
-	return fmt.Sprintf("[TASK] %s", o.TaskID)
-}
-
 // hasUpstream returns true if the operators has upstream tasks
 func (o *BashOperator) hasUpstream() bool {
 	return len(o.upstreamTaskIDs) > 0
 }
 
 // downstreamList returns the list of downstream tasks
-func (o *BashOperator) downstreamList() []TaskInterface {
-	lst := []TaskInterface{}
-	for _, taskID := range o.downstreamTaskIDs {
-		task, err := o.DAG.getTask(taskID)
-		if err != nil {
-			continue
-		}
-		lst = append(lst, task)
-	}
-	return lst
-}
+func (o *BashOperator) downstreamList() []TaskInterface { return downstreamList(o) }
 
-func (o *BashOperator) upstreamList() []TaskInterface {
-	lst := []TaskInterface{}
-	for _, taskID := range o.upstreamTaskIDs {
-		task, err := o.DAG.getTask(taskID)
-		if err != nil {
-			continue
-		}
-		lst = append(lst, task)
-	}
-	return lst
-}
+func (o *BashOperator) upstreamList() []TaskInterface { return upstreamList(o) }
 
 // IsRoot checks to see if an operator has upstream tasks
 func (o *BashOperator) IsRoot() bool {
 	return !o.hasUpstream()
+}
+
+// SetState sets the state on an operator
+func (o *BashOperator) SetState(s state.State) {
+	o.State = s
+}
+
+// GetState gets the state from an operator
+func (o *BashOperator) GetState() state.State {
+	return o.State
 }
 
 // Run run the bash operator
@@ -138,14 +129,4 @@ func (o *BashOperator) Run() error {
 		return fmt.Errorf("%s\n%s", err, stderr.String())
 	}
 	return nil
-}
-
-// SetState sets the state on an operator
-func (o *BashOperator) SetState(s state.State) {
-	o.State = s
-}
-
-// GetState gets the state from an operator
-func (o *BashOperator) GetState() state.State {
-	return o.State
 }
