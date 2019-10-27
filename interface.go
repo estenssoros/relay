@@ -41,3 +41,33 @@ func setRelatives(task, other TaskInterface, upstream bool) error {
 	other.addUpstreamTask(task.GetID())
 	return nil
 }
+
+func upstreamList(task TaskInterface) []TaskInterface {
+	lst := []TaskInterface{}
+	for _, taskID := range task.upstreamList() {
+		task, err := task.GetDag().getTask(taskID.String())
+		if err != nil {
+			continue
+		}
+		lst = append(lst, task)
+	}
+	return lst
+}
+
+func downstreamList(task TaskInterface) []TaskInterface {
+	lst := []TaskInterface{}
+	for _, taskID := range task.downstreamList() {
+		task, err := task.GetDag().getTask(taskID.String())
+		if err != nil {
+			continue
+		}
+		lst = append(lst, task)
+	}
+	return lst
+}
+
+// ConnectionInterface interface for connection
+type ConnectionInterface interface {
+	Close() error
+	Exec(string) error
+}
