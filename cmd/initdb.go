@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/estenssoros/goflow/db"
 	"github.com/estenssoros/goflow/models"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
