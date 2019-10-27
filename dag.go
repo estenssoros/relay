@@ -1,4 +1,4 @@
-package main
+package goflow
 
 import (
 	"context"
@@ -83,6 +83,13 @@ func (d *DAG) Run(ctx context.Context) error {
 
 	logrus.Infof("dag took %v", time.Since(start))
 	return nil
+}
+
+// DagConfig basic config for a new dag
+type DagConfig struct {
+	ID               string
+	Description      string
+	ScheduleInterval string
 }
 
 // NewDag creats a new dag

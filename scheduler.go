@@ -1,4 +1,4 @@
-package main
+package goflow
 
 import (
 	"context"
@@ -86,6 +86,9 @@ func (s *Scheduler) updateDagNextRun(dagID string) error {
 
 // Run runs the dags in a scheduler
 func (s *Scheduler) Run() error {
+	webServer := NewWebserver(s.Dags)
+	go webServer.Serve()
+
 	logrus.Infof("starting scheduler heartbeat: %d seconds", config.DefaultConfig.Scheduler.SchedulerHeartBeatSec)
 	if err := s.setDagNextRun(); err != nil {
 		return errors.Wrap(err, "set dag time map")

@@ -1,4 +1,4 @@
-package main
+package goflow
 
 import (
 	"github.com/estenssoros/goflow/state"
