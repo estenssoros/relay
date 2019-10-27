@@ -35,7 +35,7 @@ type DBCreds struct {
 
 type Webserver struct {
 	Host           string `yaml:"host" json:"host"`
-	Port           int    `yaml:"port" json:"port"`
+	Port           int64  `yaml:"port" json:"port"`
 	Workers        int    `yaml:"workers" json:"workers"`
 	WorkerClass    string `yaml:"worker_class" json:"worker_class"`
 	DagOrientation string `yaml:"dag_orientation" json:"dag_orientation"`
