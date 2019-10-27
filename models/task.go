@@ -6,8 +6,10 @@ import (
 	"github.com/estenssoros/goflow/state"
 )
 
-type TaskRun struct {
-	ID             int
+// TaskInstance stores the state of a task instance. This table is the
+// authority and single source of truth around what tasks have run and the
+// state they are in.
+type TaskInstance struct {
 	TaskID         string
 	DagRunID       int
 	ExecutionDate  time.Time

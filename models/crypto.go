@@ -29,6 +29,7 @@ func newGCM() (cipher.AEAD, error) {
 	return gcm, nil
 }
 
+// Decrypt translate an encoded string
 func Decrypt(in string) (string, error) {
 	gcm, err := newGCM()
 	if err != nil {
@@ -52,6 +53,7 @@ func Decrypt(in string) (string, error) {
 
 }
 
+// Encrypt encrypt  a string
 func Encrypt(in string) (string, error) {
 	gcm, err := newGCM()
 	if err != nil {
