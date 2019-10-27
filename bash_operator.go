@@ -81,9 +81,29 @@ func (o *BashOperator) hasUpstream() bool {
 }
 
 // downstreamList returns the list of downstream tasks
-func (o *BashOperator) downstreamList() []TaskInterface { return downstreamList(o) }
+func (o *BashOperator) downstreamList() []TaskInterface {
+	lst := []TaskInterface{}
+	for _, taskID := range o.downstreamTaskIDs {
+		task, err := o.DAG.getTask(taskID)
+		if err != nil {
+			continue
+		}
+		lst = append(lst, task)
+	}
+	return lst
+}
 
-func (o *BashOperator) upstreamList() []TaskInterface { return upstreamList(o) }
+func (o *BashOperator) upstreamList() []TaskInterface {
+	lst := []TaskInterface{}
+	for _, taskID := range o.upstreamTaskIDs {
+		task, err := o.DAG.getTask(taskID)
+		if err != nil {
+			continue
+		}
+		lst = append(lst, task)
+	}
+	return lst
+}
 
 // IsRoot checks to see if an operator has upstream tasks
 func (o *BashOperator) IsRoot() bool {
