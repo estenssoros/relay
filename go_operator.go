@@ -73,29 +73,9 @@ func (o *GoOperator) hasUpstream() bool {
 }
 
 // downstreamList returns the list of downstream tasks
-func (o *GoOperator) downstreamList() []TaskInterface {
-	lst := []TaskInterface{}
-	for _, taskID := range o.downstreamTaskIDs {
-		task, err := o.DAG.getTask(taskID)
-		if err != nil {
-			continue
-		}
-		lst = append(lst, task)
-	}
-	return lst
-}
+func (o *GoOperator) downstreamList() []TaskInterface { return downstreamList(o) }
 
-func (o *GoOperator) upstreamList() []TaskInterface {
-	lst := []TaskInterface{}
-	for _, taskID := range o.upstreamTaskIDs {
-		task, err := o.DAG.getTask(taskID)
-		if err != nil {
-			continue
-		}
-		lst = append(lst, task)
-	}
-	return lst
-}
+func (o *GoOperator) upstreamList() []TaskInterface { return upstreamList(o) }
 
 // IsRoot checks to see if an operator has upstream tasks
 func (o *GoOperator) IsRoot() bool {
