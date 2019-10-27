@@ -28,7 +28,11 @@ func (r *DagRunner) Run(ctx context.Context) {
 	for {
 		select {
 		case dag := <-r.dagChan:
-			if err := dag.Run(ctx); err != nil {
+			dagRun := dag.DagRun()
+			if err := dagRun.Create(); err != nil {
+				r.Error <- errors.Wrap(err, "dag run create")
+			}
+			if err := dag.Run(ctx, dagRun); err != nil {
 				r.Error <- errors.Wrapf(err, "%s", dag.FormattedID())
 			}
 		case <-ctx.Done():
@@ -195,4 +199,12 @@ func (r *TaskRunner) Run(ctx context.Context) {
 
 	<-r.Done
 
+}
+
+// FinalState calculate the final state based on the length of task lists
+func (r *TaskRunner) FinalState() state.State {
+	if len(r.failed) != 0 {
+		return state.Failed
+	}
+	return state.Success
 }

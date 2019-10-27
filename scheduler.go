@@ -32,6 +32,9 @@ func (s *Scheduler) AddDag(dag *DAG) error {
 	if ok {
 		return errors.Errorf("dag: %s allread registered", dag.ID)
 	}
+	if err := dag.getOrCreateDagModel(); err != nil {
+		return err
+	}
 	s.Dags[dag.ID] = dag
 	return nil
 }
@@ -46,6 +49,7 @@ func (s *Scheduler) hearbeat(ctx context.Context, ch chan<- string) {
 			now := time.Now().UTC()
 			for dagID, nextRun := range s.DagNextRun {
 				if now.Equal(nextRun) || now.After(nextRun) {
+					s.Dags[dagID].updateNextScheduled()
 					ch <- dagID
 				}
 			}
