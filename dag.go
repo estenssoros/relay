@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/estenssoros/goflow/db"
+	"github.com/estenssoros/goflow/models"
 	"github.com/estenssoros/goflow/state"
 	"github.com/gorhill/cronexpr"
 	"github.com/pkg/errors"
@@ -16,13 +18,10 @@ import (
 // DAG Directed Acylcical Graph
 type DAG struct {
 	ID                   string
-	CreatedAt            time.Time
-	UpdatedAt            time.Time
 	Description          string
 	ScheduleInterval     string
 	StartDate            time.Time
 	EndDate              time.Time
-	FullFilePath         string
 	DefaultArgs          []interface{}
 	Params               map[string]interface{}
 	Concurrency          int
@@ -66,12 +65,14 @@ func printSeparator(sep string, num int) {
 }
 
 // Run runs a dag
-func (d *DAG) Run(ctx context.Context) error {
+func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) error {
 	start := time.Now()
 
 	runner := NewTaskRunner(d.taskDict)
 
 	go runner.Run(ctx)
+
+	dagRun.UpdateState(state.Running)
 
 	for _, task := range d.taskDict {
 		if task.IsRoot() {
@@ -80,6 +81,8 @@ func (d *DAG) Run(ctx context.Context) error {
 		runner.evalQueue <- task
 	}
 	<-runner.Done
+
+	dagRun.UpdateState(runner.FinalState())
 
 	logrus.Infof("dag took %v", time.Since(start))
 	return nil
@@ -163,4 +166,34 @@ func (d *DAG) NextRun() (time.Time, error) {
 		return time.Time{}, errors.Wrap(err, "cron parse")
 	}
 	return cron.Next(time.Now().UTC()), nil
+}
+
+func (d *DAG) getOrCreateDagModel() error {
+	conn := db.Connection
+	dagModel := &models.DAG{}
+	conn.Where(models.DAG{ID: d.ID}).Attrs(models.DAG{
+		Description:      d.Description,
+		DefaultView:      d.DefaultView,
+		ScheduleInterval: d.ScheduleInterval,
+	}).FirstOrCreate(&dagModel)
+	return conn.Error
+}
+
+func (d *DAG) updateNextScheduled() error {
+	conn := db.Connection
+	dagModel := &models.DAG{}
+	conn.Where(models.DAG{ID: d.ID}).Assign(models.DAG{
+		LastSchedulerRun: time.Now().UTC(),
+	}).FirstOrCreate(&dagModel)
+	return conn.Error
+}
+
+// DagRun creeates a dag run model from a dag
+func (d *DAG) DagRun() *models.DagRun {
+	return &models.DagRun{
+		DagID:         d.ID,
+		ExecutionDate: time.Now().UTC(),
+		State:         state.Pending,
+		StartDate:     time.Now().UTC(),
+	}
 }
