@@ -1,4 +1,4 @@
-package goflow
+package main
 
 import (
 	"time"
