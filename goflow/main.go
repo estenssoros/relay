@@ -1,4 +1,4 @@
-package main
+package goflow
 
 import (
 	"time"
@@ -20,11 +20,4 @@ func main() {
 		logrus.Fatal(err)
 	}
 	logrus.Infof("process took %v", time.Since(start))
-}
-
-// DagConfig basic config for a new dag
-type DagConfig struct {
-	ID               string
-	Description      string
-	ScheduleInterval string
 }
