@@ -13,3 +13,9 @@ func TestGet(t *testing.T) {
 	assert.NotEmpty(t, config)
 	fmt.Println(config)
 }
+
+func TestCipherKeyBytes(t *testing.T) {
+	b, err := CipherKeyBytes()
+	assert.Nil(t, err)
+	assert.Equal(t, []byte(DefaultConfig.CipherKey), b)
+}
