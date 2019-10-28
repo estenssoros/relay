@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/estenssoros/goflow/models"
 	"github.com/estenssoros/goflow/state"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -24,6 +25,7 @@ type BashOperator struct {
 	upstreamTaskIDs   []string
 	downstreamTaskIDs []string
 	State             state.State
+	model             *models.TaskInstance
 }
 
 func (o BashOperator) String() string {
@@ -150,3 +152,11 @@ func (o *BashOperator) Run() error {
 	}
 	return nil
 }
+
+func (o *BashOperator) OperatorType() string { return `bash` }
+
+func (o *BashOperator) SetModel(m *models.TaskInstance) {
+	o.model = m
+}
+
+func (o *BashOperator) GetModel() *models.TaskInstance { return o.model }

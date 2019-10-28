@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/estenssoros/goflow/models"
 	"github.com/estenssoros/goflow/state"
 	"github.com/pkg/errors"
 )
@@ -20,6 +21,7 @@ type MySQLOperator struct {
 	upstreamTaskIDs   []string
 	downstreamTaskIDs []string
 	State             state.State
+	model             *models.TaskInstance
 }
 
 func (o *MySQLOperator) String() string { return o.TaskID }
@@ -97,3 +99,11 @@ func (o *MySQLOperator) Run() error {
 	}
 	return nil
 }
+
+func (o *MySQLOperator) OperatorType() string { return `mysql` }
+
+func (o *MySQLOperator) SetModel(m *models.TaskInstance) {
+	o.model = m
+}
+
+func (o *MySQLOperator) GetModel() *models.TaskInstance { return o.model }

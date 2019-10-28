@@ -3,6 +3,7 @@ package goflow
 import (
 	"fmt"
 
+	"github.com/estenssoros/goflow/models"
 	"github.com/estenssoros/goflow/state"
 )
 
@@ -16,6 +17,7 @@ type GoOperator struct {
 	upstreamTaskIDs   []string
 	downstreamTaskIDs []string
 	State             state.State
+	model             *models.TaskInstance
 }
 
 // GetID returns the tag id for an operator
@@ -116,3 +118,11 @@ func (o *GoOperator) SetState(s state.State) {
 func (o *GoOperator) GetState() state.State {
 	return o.State
 }
+
+func (o *GoOperator) OperatorType() string { return `go` }
+
+func (o *GoOperator) SetModel(m *models.TaskInstance) {
+	o.model = m
+}
+
+func (o *GoOperator) GetModel() *models.TaskInstance { return o.model }
