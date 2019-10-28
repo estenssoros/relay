@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/estenssoros/dasorm/nulls"
 	"github.com/estenssoros/goflow/db"
 	"github.com/estenssoros/goflow/models"
 	"github.com/estenssoros/goflow/state"
@@ -77,6 +78,17 @@ func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) error {
 	for _, task := range d.taskDict {
 		if task.IsRoot() {
 			task.SetState(state.Queued)
+		}
+		taskModel := &models.TaskInstance{
+			TaskID:    task.GetID(),
+			DagRunID:  dagRun.ID,
+			StartDate: time.Now().UTC(),
+			EndDate:   nulls.Time{},
+			State:     task.GetState(),
+			Operator:  task.OperatorType(),
+		}
+		if err := taskModel.Create(); err != nil {
+			return errors.Wrap(err, "create task model")
 		}
 		runner.evalQueue <- task
 	}
