@@ -90,6 +90,5 @@ Dags schedules are defined using chron syntax from https://github.com/gorhill/cr
 - build out web pages and html so user can interface with dag data, scheduler, etc.
 - check for folder, config on startup and create if not exists
 - support multiple databases for goflow database
-- user to modify config from webserver
 - database operators (MySQL, PostGres, MsSQL, Snowflake)
 - s3 operator
