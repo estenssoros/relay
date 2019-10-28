@@ -3,6 +3,7 @@ package goflow
 import (
 	"errors"
 
+	"github.com/estenssoros/goflow/models"
 	"github.com/estenssoros/goflow/state"
 )
 
@@ -23,6 +24,9 @@ type TaskInterface interface {
 	GetState() state.State
 	IsRoot() bool
 	Run() error
+	OperatorType() string
+	SetModel(*models.TaskInstance)
+	GetModel() *models.TaskInstance
 }
 
 func setRelatives(task, other TaskInterface, upstream bool) error {
