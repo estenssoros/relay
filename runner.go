@@ -110,19 +110,18 @@ func (r *TaskRunner) Evaluate(ctx context.Context) {
 		case task := <-r.evalQueue:
 			switch task.GetState() {
 			case state.Queued: // start task
-				// TODO update task model to be queue
-				// TODO set start date to now
+				task.GetModel().Start()
 				r.taskQueue <- task
 				continue
 
 			case state.Success: // add to success
-				// TODO updated task model to success
-				// TODO set end date to now
+				task.GetModel().State = state.Success
+				task.GetModel().Stop()
 				r.success = append(r.success, task)
 
 			case state.Failed: // fail downstream tasks
-				// TODO updated task model to failed
-				// TODO set end date to now
+				task.GetModel().State = state.Failed
+				task.GetModel().Stop()
 				for _, t := range task.downstreamList() {
 					r.upstreamFailed = append(r.upstreamFailed, t)
 				}
