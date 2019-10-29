@@ -12,7 +12,7 @@ import (
 // authority and single source of truth around what tasks have run and the
 // state they are in.
 type TaskInstance struct {
-	TaskInstanceID int `gorm:"PRIMARY_KEY"`
+	ID             int `gorm:"PRIMARY_KEY"`
 	TaskID         string
 	DagRunID       int
 	StartDate      time.Time
