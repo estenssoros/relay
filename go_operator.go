@@ -119,10 +119,13 @@ func (o *GoOperator) GetState() state.State {
 	return o.State
 }
 
+// OperatorType returns the type of the operator
 func (o *GoOperator) OperatorType() string { return `go` }
 
+// SetModel sets a model to the operator
 func (o *GoOperator) SetModel(m *models.TaskInstance) {
 	o.model = m
 }
 
+// GetModel gets the model from the operator
 func (o *GoOperator) GetModel() *models.TaskInstance { return o.model }

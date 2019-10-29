@@ -153,10 +153,13 @@ func (o *BashOperator) Run() error {
 	return nil
 }
 
+// OperatorType returns the type of the operator
 func (o *BashOperator) OperatorType() string { return `bash` }
 
+// SetModel sets a model to the operator
 func (o *BashOperator) SetModel(m *models.TaskInstance) {
 	o.model = m
 }
 
+// GetModel gets the model from the operator
 func (o *BashOperator) GetModel() *models.TaskInstance { return o.model }

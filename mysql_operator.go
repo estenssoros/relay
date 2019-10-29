@@ -100,10 +100,13 @@ func (o *MySQLOperator) Run() error {
 	return nil
 }
 
+// OperatorType returns the type of the operator
 func (o *MySQLOperator) OperatorType() string { return `mysql` }
 
+// SetModel sets a model to the operator
 func (o *MySQLOperator) SetModel(m *models.TaskInstance) {
 	o.model = m
 }
 
+// GetModel gets the model from the operator
 func (o *MySQLOperator) GetModel() *models.TaskInstance { return o.model }
