@@ -27,3 +27,9 @@ func (d *DagRun) UpdateState(s state.State) error {
 	conn.Model(d).Update("state", s)
 	return conn.Error
 }
+
+func (d *DagRun) Finish(s state.State) error {
+	conn := db.Connection
+	conn.Model(d).Updates(DagRun{State: s, EndDate: time.Now().UTC()})
+	return conn.Error
+}
