@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/estenssoros/dasorm/nulls"
@@ -70,8 +71,9 @@ func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) error {
 	start := time.Now()
 
 	runner := NewTaskRunner(d.taskDict)
-
-	go runner.Run(ctx)
+	var w sync.WaitGroup
+	w.Add(1)
+	go runner.Run(ctx, &w)
 
 	dagRun.UpdateState(state.Running)
 
@@ -90,11 +92,13 @@ func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) error {
 		if err := taskModel.Create(); err != nil {
 			return errors.Wrap(err, "create task model")
 		}
+		task.SetModel(taskModel)
 		runner.evalQueue <- task
 	}
-	<-runner.Done
 
-	dagRun.UpdateState(runner.FinalState())
+	w.Wait()
+
+	dagRun.Finish(runner.FinalState())
 
 	logrus.Infof("dag took %v", time.Since(start))
 	return nil
