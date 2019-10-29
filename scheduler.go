@@ -12,6 +12,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func init() {
+	customFormatter := new(logrus.TextFormatter)
+	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
+	logrus.SetFormatter(customFormatter)
+	customFormatter.FullTimestamp = true
+	logrus.SetLevel(logrus.DebugLevel)
+}
+
 // Scheduler orchestrates the scheduling of dags
 type Scheduler struct {
 	Dags       map[string]*DAG
@@ -54,7 +62,7 @@ func (s *Scheduler) hearbeat(ctx context.Context, ch chan<- string) {
 				}
 			}
 		case <-ctx.Done():
-			logrus.Infof("closing heartbeat...")
+			logrus.Infof("closing scheduler...")
 			return
 		}
 	}
