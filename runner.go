@@ -2,6 +2,7 @@ package goflow
 
 import (
 	"context"
+	"sync"
 
 	"github.com/estenssoros/goflow/config"
 	"github.com/estenssoros/goflow/state"
@@ -134,32 +135,30 @@ func (r *TaskRunner) Evaluate(ctx context.Context) {
 						t.SetState(state.UpstreamFailed)
 					}
 					r.evalQueue <- task
-					// TODO UPDATE TASK MODEL
 					continue
 				}
 				if r.isUpstreamSuccess(task) {
 					task.SetState(state.Queued)
-					//TODO update model
+					task.GetModel().State = state.Queued
+					task.GetModel().Update()
 					logrus.Infof("%s sent to workers", task.FormattedID())
 					r.taskQueue <- task
 					continue
 				}
 			case state.UpstreamFailed:
+				task.GetModel().State = state.UpstreamFailed
+				task.GetModel().Update()
 				r.upstreamFailed = append(r.upstreamFailed, task)
 				continue
 			}
 
 			if r.IsDone() {
-				logrus.Info("all tasks done!")
 				for _, w := range r.workers {
 					w.kill <- struct{}{}
 				}
-				logrus.Info("all workers exited")
 				close(r.evalQueue)
 				close(r.taskQueue)
-				logrus.Info("waiting on runner done")
 				r.Done <- struct{}{}
-				logrus.Info("runner done!")
 				return
 			}
 			r.evalQueue <- task
@@ -190,14 +189,15 @@ func (r *TaskRunner) SpawnWorkers(ctx context.Context) {
 }
 
 // Run run the task runner
-func (r *TaskRunner) Run(ctx context.Context) {
+func (r *TaskRunner) Run(ctx context.Context, w *sync.WaitGroup) {
+	defer w.Done()
 
 	go r.Evaluate(ctx)
 
 	r.SpawnWorkers(ctx)
 
 	<-r.Done
-
+	close(r.Done)
 }
 
 // FinalState calculate the final state based on the length of task lists
