@@ -97,7 +97,8 @@ func (s *Scheduler) updateDagNextRun(dagID string) error {
 	return nil
 }
 
-// Run runs the dags in a scheduler
+// Run starts the scheduler and dag runner
+// Creates a context that listens for an os.interrupt to terminate running go routines
 func (s *Scheduler) Run() error {
 	webServer := NewWebserver(s.Dags)
 	go webServer.Serve()

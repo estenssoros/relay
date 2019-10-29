@@ -1,6 +1,8 @@
 package relay
 
 import (
+	"context"
+
 	"github.com/estenssoros/relay/state"
 	"github.com/sirupsen/logrus"
 )
@@ -20,7 +22,7 @@ func NewWorker() *Worker {
 }
 
 // Start starts a worker workin
-func (w *Worker) Start(taskQueue <-chan TaskInterface, evalQueue chan<- TaskInterface) {
+func (w *Worker) Start(ctx context.Context, taskQueue <-chan TaskInterface, evalQueue chan<- TaskInterface) {
 	logrus.Debugf("starter worker %s", w.name)
 	defer func() {
 		logrus.Debugf("worker %s exited", w.name)
@@ -41,6 +43,8 @@ func (w *Worker) Start(taskQueue <-chan TaskInterface, evalQueue chan<- TaskInte
 			evalQueue <- task
 		case <-w.kill:
 			logrus.Infof("killing worker %s...", w.name)
+			return
+		case <-ctx.Done():
 			return
 		}
 	}

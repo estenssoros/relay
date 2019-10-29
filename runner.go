@@ -183,7 +183,7 @@ func (r *TaskRunner) SpawnWorkers(ctx context.Context) {
 	for i := 0; i < numWorkers; i++ {
 		worker := NewWorker()
 		r.workers = append(r.workers, worker)
-		go worker.Start(r.taskQueue, r.evalQueue)
+		go worker.Start(ctx, r.taskQueue, r.evalQueue)
 	}
 	logrus.Infof("starting %d workers", numWorkers)
 }
@@ -195,9 +195,17 @@ func (r *TaskRunner) Run(ctx context.Context, w *sync.WaitGroup) {
 	go r.Evaluate(ctx)
 
 	r.SpawnWorkers(ctx)
+	for {
+		select {
+		case <-r.Done:
+			close(r.Done)
+			return
+		case <-ctx.Done():
+			close(r.Done)
+			return
+		}
+	}
 
-	<-r.Done
-	close(r.Done)
 }
 
 // FinalState calculate the final state based on the length of task lists
