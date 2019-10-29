@@ -1,4 +1,4 @@
-# goflow
+# relay
 
 schedule and run tasks from a single executable
 
@@ -6,11 +6,11 @@ schedule and run tasks from a single executable
 ## Getting started
 
 ```
-$ EXPORT $GOFLOW_HOME=~/goflow
-$ goflow initdb
+$ EXPORT $RELAY_HOME=~/relay
+$ relay initdb
 ```
 
-This will start a sqlite3 database at `~/goflow` and seed a config file there
+This will start a sqlite3 database at `~/relay` and seed a config file there
 
 ## Example
 ```
@@ -18,12 +18,12 @@ package main
 
 import (
     "log"
-    "github.com/estenssoros/goflow"
+    "github.com/estenssoros/relay"
     "github.com/pkg/errors"
 )
 
 func run() error {
-    dag, err := goflow.NewDag(&DagConfig{
+    dag, err := relay.NewDag(&relay.DagConfig{
 		ID:               "test",
 		Description:      "a test to see how run",
 		ScheduleInterval: "* * * * *",
@@ -32,7 +32,7 @@ func run() error {
         return errors.Wrap(err, "new dag")
 	}
 
-    t1, err := dag.NewBash(&BashOperator{
+    t1, err := dag.NewBash(&relay.BashOperator{
 		TaskID:      "print date",
 		BashCommand: "date",
 	})
@@ -40,7 +40,7 @@ func run() error {
 		return errors.Wrap(err, "t1")
 	}
 
-	t2, err := dag.NewBash(&BashOperator{
+	t2, err := dag.NewBash(&relay.BashOperator{
 		TaskID:      "sleep",
 		BashCommand: "sleep 5",
 		Retries:     3,
@@ -49,7 +49,7 @@ func run() error {
 		return errors.Wrap(err, "t2")
 	}
 
-	t3, err := dag.NewBash(&BashOperator{
+	t3, err := dag.NewBash(&relay.BashOperator{
 		TaskID:      "hello world",
 		BashCommand: "echo hello world",
 	})
@@ -63,7 +63,7 @@ func run() error {
 	if err := dag.TreeView(); err != nil {
 		return errors.Wrap(err, "dag tree view")
 	}
-	scheduler := NewScheduler()
+	scheduler := relay.NewScheduler()
 
 	scheduler.AddDag(dag)
 
@@ -86,9 +86,8 @@ Dags schedules are defined using chron syntax from https://github.com/gorhill/cr
 
 ## TODO
 
-- actually interact with the database when running dags etc.
 - build out web pages and html so user can interface with dag data, scheduler, etc.
 - check for folder, config on startup and create if not exists
-- support multiple databases for goflow database
+- support multiple databases for relay database
 - database operators (MySQL, PostGres, MsSQL, Snowflake)
 - s3 operator

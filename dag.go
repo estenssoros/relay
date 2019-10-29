@@ -1,4 +1,4 @@
-package goflow
+package relay
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/estenssoros/dasorm/nulls"
-	"github.com/estenssoros/goflow/db"
-	"github.com/estenssoros/goflow/models"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/db"
+	"github.com/estenssoros/relay/models"
+	"github.com/estenssoros/relay/state"
 	"github.com/gorhill/cronexpr"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -121,7 +121,7 @@ func NewDag(input *DagConfig) (*DAG, error) {
 	}, nil
 }
 
-// AddTask adds a task to a dag
+// AddTask sets the task state to pending and adds a task to a dag
 func (d *DAG) AddTask(t TaskInterface) error {
 	_, ok := d.taskDict[t.GetID()]
 	if ok {
@@ -189,7 +189,6 @@ func (d *DAG) getOrCreateDagModel() error {
 	dagModel := &models.DAG{}
 	conn.Where(models.DAG{ID: d.ID}).Attrs(models.DAG{
 		Description:      d.Description,
-		DefaultView:      d.DefaultView,
 		ScheduleInterval: d.ScheduleInterval,
 	}).FirstOrCreate(&dagModel)
 	return conn.Error

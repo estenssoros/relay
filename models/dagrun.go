@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/estenssoros/goflow/db"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/db"
+	"github.com/estenssoros/relay/state"
 )
 
 // DagRun describes an instance of a Dag. It can be created by the scheduler or by an external trigger

@@ -11,7 +11,7 @@ import (
 )
 
 type Core struct {
-	GoFlowHome              string `yaml:"go_flow_home" json:"go_flow_home"`
+	RelayHome               string `yaml:"relay_home" json:"relay_home"`
 	DefaultTimeZone         string `yaml:"default_time_zone" json:"default_time_zone"`
 	Executor                string `yaml:"executor" json:"executor"`
 	SQLConn                 string `yaml:"sql_conn" json:"sql_conn"`
@@ -65,7 +65,7 @@ func (c Config) String() string {
 	return string(ju)
 }
 
-var configFile = "goflow.yaml"
+var configFile = "relay.yaml"
 
 var DefaultConfig *Config
 
@@ -80,7 +80,7 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "homedir")
 	}
-	f, err := os.Open(filepath.Join(homeDir, "goflow", configFile))
+	f, err := os.Open(filepath.Join(homeDir, "relay", configFile))
 	if err != nil {
 		return nil, errors.Wrap(err, "readfile")
 	}

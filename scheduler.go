@@ -1,4 +1,4 @@
-package goflow
+package relay
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/estenssoros/goflow/config"
+	"github.com/estenssoros/relay/config"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -35,6 +35,7 @@ func NewScheduler() *Scheduler {
 }
 
 // AddDag adds a dag to the scheduler
+// Gets or creates a dag in the database
 func (s *Scheduler) AddDag(dag *DAG) error {
 	_, ok := s.Dags[dag.ID]
 	if ok {

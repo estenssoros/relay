@@ -1,7 +1,7 @@
-package goflow
+package relay
 
 import (
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/state"
 	"github.com/sirupsen/logrus"
 )
 

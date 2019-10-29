@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/estenssoros/goflow/config"
+	"github.com/estenssoros/relay/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/sirupsen/logrus"

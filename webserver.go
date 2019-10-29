@@ -1,4 +1,4 @@
-package goflow
+package relay
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"text/template"
 
-	"github.com/estenssoros/goflow/config"
+	"github.com/estenssoros/relay/config"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/leaanthony/mewn"

@@ -21,7 +21,7 @@ func init() {
 
 var webserverCmd = &cobra.Command{
 	Use:     "webserver",
-	Short:   "start a goflow webserver instance",
+	Short:   "start a relay webserver instance",
 	PreRunE: func(cmd *cobra.Command, args []string) error { return nil },
 	RunE:    func(cmd *cobra.Command, args []string) error { return nil },
 }

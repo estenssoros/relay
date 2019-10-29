@@ -1,10 +1,10 @@
-package goflow
+package relay
 
 import (
 	"errors"
 
-	"github.com/estenssoros/goflow/models"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/models"
+	"github.com/estenssoros/relay/state"
 )
 
 // TaskInterface an interface for all operators on a DAG

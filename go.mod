@@ -1,4 +1,4 @@
-module github.com/estenssoros/goflow
+module github.com/estenssoros/relay
 
 go 1.13
 

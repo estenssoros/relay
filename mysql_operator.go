@@ -1,11 +1,11 @@
-package goflow
+package relay
 
 import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/estenssoros/goflow/models"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/models"
+	"github.com/estenssoros/relay/state"
 	"github.com/pkg/errors"
 )
 

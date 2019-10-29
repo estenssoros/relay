@@ -1,4 +1,4 @@
-package goflow
+package relay
 
 var (
 	// MySQLType mysql connection type

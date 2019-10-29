@@ -29,7 +29,7 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "goflow",
+	Use:   "relay",
 	Short: "",
 }
 

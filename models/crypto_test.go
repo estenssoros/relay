@@ -10,7 +10,7 @@ var cryptionTests = []struct {
 	in string
 }{
 	{"asdf"},
-	{"goflow"},
+	{"relay"},
 	{"12309fasdfa"},
 	{")(*&^%$##@@!{}[],.<>??/\\"},
 }

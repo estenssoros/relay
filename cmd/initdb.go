@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/estenssoros/goflow/db"
-	"github.com/estenssoros/goflow/models"
+	"github.com/estenssoros/relay/db"
+	"github.com/estenssoros/relay/models"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

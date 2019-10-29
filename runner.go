@@ -1,11 +1,11 @@
-package goflow
+package relay
 
 import (
 	"context"
 	"sync"
 
-	"github.com/estenssoros/goflow/config"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/config"
+	"github.com/estenssoros/relay/state"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

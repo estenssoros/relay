@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/estenssoros/dasorm/nulls"
-	"github.com/estenssoros/goflow/db"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/db"
+	"github.com/estenssoros/relay/state"
 )
 
 // TaskInstance stores the state of a task instance. This table is the

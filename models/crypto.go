@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/estenssoros/goflow/config"
+	"github.com/estenssoros/relay/config"
 	"github.com/pkg/errors"
 )
 

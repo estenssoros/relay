@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/estenssoros/goflow/cmd"
+	"github.com/estenssoros/relay/cmd"
 	"github.com/sirupsen/logrus"
 )
 

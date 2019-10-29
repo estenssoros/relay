@@ -1,4 +1,4 @@
-package goflow
+package relay
 
 import (
 	"fmt"

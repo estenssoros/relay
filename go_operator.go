@@ -1,10 +1,10 @@
-package goflow
+package relay
 
 import (
 	"fmt"
 
-	"github.com/estenssoros/goflow/models"
-	"github.com/estenssoros/goflow/state"
+	"github.com/estenssoros/relay/models"
+	"github.com/estenssoros/relay/state"
 )
 
 // GoOperator operator for go functions
