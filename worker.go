@@ -21,9 +21,9 @@ func NewWorker() *Worker {
 
 // Start starts a worker workin
 func (w *Worker) Start(taskQueue <-chan TaskInterface, evalQueue chan<- TaskInterface) {
-	logrus.Infof("starter worker %s", w.name)
+	logrus.Debugf("starter worker %s", w.name)
 	defer func() {
-		logrus.Infof("worker %s exited", w.name)
+		logrus.Debugf("worker %s exited", w.name)
 	}()
 	for {
 		select {
