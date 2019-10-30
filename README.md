@@ -5,34 +5,37 @@ schedule and run tasks from a single executable
 
 ## Getting started
 
-```
-$ EXPORT $RELAY_HOME=~/relay
-$ relay initdb
+```bash
+export $RELAY_HOME=~/relay
+relay initdb
 ```
 
 This will start a sqlite3 database at `~/relay` and seed a config file there
 
 ## Example
-```
+
+```go
 package main
 
 import (
-    "log"
-    "github.com/estenssoros/relay"
-    "github.com/pkg/errors"
+	"log"
+
+	"github.com/estenssoros/relay"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/pkg/errors"
 )
 
 func run() error {
-    dag, err := relay.NewDag(&relay.DagConfig{
+	dag, err := relay.NewDag(&relay.DagConfig{
 		ID:               "test",
 		Description:      "a test to see how run",
 		ScheduleInterval: "* * * * *",
 	})
-    if err != nil {
-        return errors.Wrap(err, "new dag")
+	if err != nil {
+		return errors.Wrap(err, "new dag")
 	}
 
-    t1, err := dag.NewBash(&relay.BashOperator{
+	t1, err := dag.NewBash(&relay.BashOperator{
 		TaskID:      "print date",
 		BashCommand: "date",
 	})
@@ -70,19 +73,31 @@ func run() error {
 	if err := scheduler.Run(); err != nil {
 		return errors.Wrap(err, "scheduler run")
 	}
+	return nil
 }
 
 func main() {
-    if err := run(); err!=nil{
-        log.Fatal(err)
-    }
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
 ```
 
-This will start an echo webserver on port `3000` along with a scheduler and executor workers.
+Tree view will show you a simple tree representation of the dag
+
+```bash
+--------------------------------------------------
+DAG[test] TREE VIEW
+--------------------------------------------------
+print date
+	sleep
+	hello world
+--------------------------------------------------
+```
+
+`scheduler.Run()` will start an echo webserver on port `3000` along with a scheduler and executor workers.
 
 Dags schedules are defined using chron syntax from https://github.com/gorhill/cronexpr
-
 
 ## TODO
 
@@ -90,4 +105,4 @@ Dags schedules are defined using chron syntax from https://github.com/gorhill/cr
 - check for folder, config on startup and create if not exists
 - support multiple databases for relay database
 - database operators (MySQL, PostGres, MsSQL, Snowflake)
-- s3 operator
+- s3 operator 
