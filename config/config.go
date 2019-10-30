@@ -20,7 +20,6 @@ type Core struct {
 	DagsArePausedAtCreation bool   `yaml:"dags_are_paused_at_creation" json:"dags_are_paused_at_creation"`
 	MaxActiveRunsPerDag     int    `yaml:"max_active_runs_per_dag" json:"max_active_runs_per_dag"`
 	CipherKey               string `yaml:"cipher_key" json:"cipher_key"`
-	DagBagImportTimeout     int    `yaml:"dag_bag_import_timeout" json:"dag_bag_import_timeout"`
 	TaskRunner              string `yaml:"task_runner" json:"task_runner"`
 }
 
@@ -34,7 +33,6 @@ type DBCreds struct {
 }
 
 type Webserver struct {
-	Host           string `yaml:"host" json:"host"`
 	Port           int64  `yaml:"port" json:"port"`
 	Workers        int    `yaml:"workers" json:"workers"`
 	WorkerClass    string `yaml:"worker_class" json:"worker_class"`
