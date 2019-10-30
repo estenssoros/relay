@@ -37,7 +37,7 @@ type DAG struct {
 	AccessControl        map[string]string
 	IsPausedUponCreation bool
 
-	taskDict  map[string]TaskInterface
+	tasks     map[string]TaskInterface
 	taskCount int
 }
 
@@ -54,7 +54,7 @@ func (d DAG) String() string {
 // Roots are the first tasks that need tp be run
 func (d *DAG) Roots() []TaskInterface {
 	tasks := []TaskInterface{}
-	for _, t := range d.taskDict {
+	for _, t := range d.tasks {
 		if t.IsRoot() {
 			tasks = append(tasks, t)
 		}
@@ -67,17 +67,23 @@ func printSeparator(sep string, num int) {
 }
 
 // Run runs a dag
-func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) error {
+func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("%v", r)
+		}
+	}()
 	start := time.Now()
 
-	runner := NewTaskRunner(d.taskDict)
+	runner := NewTaskRunner(d.tasks)
 	var w sync.WaitGroup
 	w.Add(1)
+
 	go runner.Run(ctx, &w)
 
 	dagRun.UpdateState(state.Running)
 
-	for _, task := range d.taskDict {
+	for _, task := range d.tasks {
 		if task.IsRoot() {
 			task.SetState(state.Queued)
 		}
@@ -117,18 +123,18 @@ func NewDag(input *DagConfig) (*DAG, error) {
 		ID:               input.ID,
 		Description:      input.Description,
 		ScheduleInterval: input.ScheduleInterval,
-		taskDict:         map[string]TaskInterface{},
+		tasks:            map[string]TaskInterface{},
 	}, nil
 }
 
 // AddTask sets the task state to pending and adds a task to a dag
 func (d *DAG) AddTask(t TaskInterface) error {
-	_, ok := d.taskDict[t.GetID()]
+	_, ok := d.tasks[t.GetID()]
 	if ok {
 		return errors.Errorf("task %s already exists in dag", t.GetID())
 	}
 	t.SetState(state.Pending)
-	d.taskDict[t.GetID()] = t
+	d.tasks[t.GetID()] = t
 	t.SetDag(d)
 	return nil
 }
@@ -144,7 +150,7 @@ func (d *DAG) NewGo(o *GoOperator) (*GoOperator, error) {
 }
 
 func (d *DAG) getTask(taskID string) (TaskInterface, error) {
-	t, ok := d.taskDict[taskID]
+	t, ok := d.tasks[taskID]
 	if !ok {
 		return nil, errors.Errorf("missing task %s", taskID)
 	}
