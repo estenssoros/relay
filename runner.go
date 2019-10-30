@@ -14,6 +14,7 @@ import (
 type DagRunner struct {
 	dagChan chan *DAG
 	Error   chan error
+	Sema    chan struct{}
 }
 
 // NewDagRunner creates a new dag runner
@@ -21,6 +22,7 @@ func NewDagRunner() *DagRunner {
 	return &DagRunner{
 		dagChan: make(chan *DAG),
 		Error:   make(chan error),
+		Sema:    make(chan struct{}, config.DefaultConfig.Core.DagConcurrency),
 	}
 }
 
@@ -29,6 +31,11 @@ func (r *DagRunner) Run(ctx context.Context) {
 	for {
 		select {
 		case dag := <-r.dagChan:
+			r.Sema <- struct{}{} // limitis dag concurrency by semaphore
+			defer func() {
+				<-r.Sema
+			}()
+
 			dagRun := dag.DagRun()
 			if err := dagRun.Create(); err != nil {
 				r.Error <- errors.Wrap(err, "dag run create")
@@ -64,16 +71,12 @@ type TaskRunner struct {
 
 // NewTaskRunner creates a new task runner
 func NewTaskRunner(tasks map[string]TaskInterface) *TaskRunner {
-	taskMap := map[string]TaskInterface{}
-	for k, v := range tasks {
-		taskMap[k] = v
-	}
 	return &TaskRunner{
-		evalQueue:      make(chan TaskInterface, len(taskMap)),
-		taskQueue:      make(chan TaskInterface, len(taskMap)),
+		evalQueue:      make(chan TaskInterface, len(tasks)),
+		taskQueue:      make(chan TaskInterface, len(tasks)),
 		Error:          make(chan error),
 		Done:           make(chan struct{}),
-		Tasks:          taskMap,
+		Tasks:          tasks,
 		success:        []TaskInterface{},
 		failed:         []TaskInterface{},
 		upstreamFailed: []TaskInterface{},
@@ -105,6 +108,7 @@ func (r *TaskRunner) isUpstreamSuccess(task TaskInterface) bool {
 }
 
 // Evaluate evaluate tasks state and distribute to workers or lists
+// Pending tasks are recycled through the task queue until their upstream tasks reach an actionable state
 func (r *TaskRunner) Evaluate(ctx context.Context) {
 	for {
 		select {
@@ -177,9 +181,10 @@ func min(a, b int) int {
 	return b
 }
 
-// SpawnWorkers spawn workers to hand tasks
+// SpawnWorkers spawn workers to hand tasks. Defaults to the minimum between number of
+// tasks and config specified workers
 func (r *TaskRunner) SpawnWorkers(ctx context.Context) {
-	numWorkers := min(config.DefaultConfig.Webserver.Workers, len(r.Tasks))
+	numWorkers := min(config.DefaultConfig.Core.Parallelism, len(r.Tasks))
 	for i := 0; i < numWorkers; i++ {
 		worker := NewWorker()
 		r.workers = append(r.workers, worker)
@@ -188,7 +193,8 @@ func (r *TaskRunner) SpawnWorkers(ctx context.Context) {
 	logrus.Infof("starting %d workers", numWorkers)
 }
 
-// Run run the task runner
+// Run run the task runner. This startrs the task evaluator and spans workers for the tasks
+// it then waits on the runner.Done channel or for a context cancel
 func (r *TaskRunner) Run(ctx context.Context, w *sync.WaitGroup) {
 	defer w.Done()
 
