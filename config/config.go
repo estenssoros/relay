@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Core config for relay
 type Core struct {
 	RelayHome               string `yaml:"relay_home" json:"relay_home"`
 	DefaultTimeZone         string `yaml:"default_time_zone" json:"default_time_zone"`
@@ -23,6 +24,7 @@ type Core struct {
 	TaskRunner              string `yaml:"task_runner" json:"task_runner"`
 }
 
+// DBCreds creds for database
 type DBCreds struct {
 	User     string `yaml:"user" json:"user"`
 	Password string `yaml:"password" json:"password"`
@@ -32,6 +34,7 @@ type DBCreds struct {
 	Flavor   string `yaml:"flavor" json:"flavor"`
 }
 
+// Webserver webserer config
 type Webserver struct {
 	Port           int64  `yaml:"port" json:"port"`
 	Workers        int    `yaml:"workers" json:"workers"`
@@ -39,17 +42,14 @@ type Webserver struct {
 	DagOrientation string `yaml:"dag_orientation" json:"dag_orientation"`
 }
 
+// Scheduler scheduler config
 type Scheduler struct {
-	JobHeartBeatSec               int  `yaml:"job_heart_beat_sec" json:"job_heart_beat_sec"`
-	SchedulerHeartBeatSec         int  `yaml:"scheduler_heartbeat_sec" json:"scheduler_heartbeat_sec"`
-	NumRuns                       int  `yaml:"num_runs" json:"num_runs"`
-	ProcessPollInterval           int  `yaml:"process_poll_interval" json:"process_poll_interval"`
-	MinFileProcessInterval        int  `yaml:"min_file_process_interval" json:"min_file_process_interval"`
-	DagDirListInterval            int  `yaml:"dag_dir_list_interval" json:"dag_dir_list_interval"`
-	SchedulerHealthCheckThreshold int  `yaml:"scheduler_health_check_threshold" json:"scheduler_health_check_threshold"`
-	CatchupByDefault              bool `yaml:"catchup_by_default" json:"catchup_by_default"`
+	JobHeartBeatSec       int `yaml:"job_heart_beat_sec" json:"job_heart_beat_sec"`
+	SchedulerHeartBeatSec int `yaml:"scheduler_heartbeat_sec" json:"scheduler_heartbeat_sec"`
+	NumRuns               int `yaml:"num_runs" json:"num_runs"`
 }
 
+// Config holds all configs
 type Config struct {
 	Core      `yaml:"core" json:"core"`
 	DBCreds   `yaml:"db_creds" json:"db_creds"`
@@ -65,6 +65,7 @@ func (c Config) String() string {
 
 var configFile = "relay.yaml"
 
+// DefaultConfig to be used by relay process
 var DefaultConfig *Config
 
 func init() {
@@ -73,6 +74,7 @@ func init() {
 	DefaultConfig = config
 }
 
+// Load reads in a config
 func Load() (*Config, error) {
 	homeDir, err := homedir.Dir()
 	if err != nil {
@@ -90,9 +92,82 @@ func Load() (*Config, error) {
 	return config, nil
 }
 
+// CipherKeyBytes returns bytes of cipher key
 func CipherKeyBytes() ([]byte, error) {
 	if DefaultConfig.Error != nil {
 		return nil, DefaultConfig.Error
 	}
 	return []byte(DefaultConfig.Core.CipherKey), nil
+}
+
+func newCipherKey() string {
+	return ``
+}
+
+func createConfig(path string) error {
+	config := &Config{
+		Core: Core{
+			RelayHome:               path,
+			DefaultTimeZone:         "utc",
+			Executor:                defaultExecutor,
+			SQLConn:                 defaultSQLConn,
+			Parallelism:             defaultParrallelism,
+			DagConcurrency:          defaultDagConcurrency,
+			DagsArePausedAtCreation: false,
+			MaxActiveRunsPerDag:     defaultMaxActiveRunsPerDag,
+			CipherKey:               newCipherKey(),
+			TaskRunner:              defaultTaskRunner,
+		},
+		DBCreds: DBCreds{
+			User:     "",
+			Password: "",
+			Host:     "",
+			Database: "",
+			Port:     0,
+			Flavor:   "",
+		},
+		Webserver: Webserver{
+			Port:           int64(defaultPort),
+			Workers:        defaultWorkers,
+			WorkerClass:    defaultWorkerClass,
+			DagOrientation: defaultDagOrientation,
+		},
+		Scheduler: Scheduler{
+			JobHeartBeatSec:       defaultJobHeartBeatSec,
+			SchedulerHeartBeatSec: defaultSchedulerheartBeatSec,
+			NumRuns:               defaultNumRuns,
+		},
+		Error: nil,
+	}
+	f, err := os.Create(path)
+	if err != nil {
+		return errors.Wrap(err, "create file")
+	}
+	defer f.Close()
+	ym, _ := yaml.Marshal(config)
+	if _, err := f.Write(ym); err != nil {
+		return errors.Wrap(err, "file write")
+	}
+	return nil
+}
+
+// CreateIfNotExists creates a config if it doesn't exist
+func CreateIfNotExists() error {
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		return errors.Wrap(err, "homedir")
+	}
+	dir := filepath.Join(homeDir, "relay")
+	if _, err := os.Stat(dir); err != nil {
+		if err := os.Mkdir(dir, os.ModeDir); err != nil {
+			return errors.Wrap(err, "mkdir")
+		}
+	}
+	pathToConfig := filepath.Join(dir, configFile)
+	if _, err := os.Stat(pathToConfig); err != nil {
+		if err := createConfig(pathToConfig); err != nil {
+			return errors.Wrap(err, "create config")
+		}
+	}
+	return nil
 }
