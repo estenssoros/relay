@@ -135,6 +135,10 @@ func (o *BashOperator) Run() error {
 		cmd = exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	}
 
+	if o.Dir != "" {
+		cmd.Dir = o.Dir
+	}
+
 	var stderr bytes.Buffer
 	mw := io.MultiWriter(&stderr, os.Stderr)
 	cmd.Stderr = mw
