@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/estenssoros/relay/db"
+	"github.com/estenssoros/relay/models"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +37,17 @@ var connectionListCmd = &cobra.Command{
 	Short:   "list connections",
 	PreRunE: func(cmd *cobra.Command, args []string) error { return nil },
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("listing connections")
+		connections := []*models.Connection{}
+		conn := db.Connection
+		if err := conn.Find(&connections).Error; err != nil {
+			return errors.Wrap(err, "find connections")
+		}
+		if len(connections) == 0 {
+			fmt.Println("no connections present")
+		}
+		for _, c := range connections {
+			fmt.Println(c.ID, c.ConnID, c.ConnType, c.Host)
+		}
 		return nil
 	},
 }
