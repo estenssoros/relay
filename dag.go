@@ -37,8 +37,7 @@ type DAG struct {
 	AccessControl        map[string]string
 	IsPausedUponCreation bool
 
-	tasks     map[string]TaskInterface
-	taskCount int
+	tasks map[string]TaskInterface
 }
 
 // FormattedID formatted dag id
