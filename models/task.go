@@ -25,6 +25,7 @@ type TaskInstance struct {
 	UnixName       string
 	PriorityWeight int
 	Operator       string
+	Message        string
 }
 
 func (t *TaskInstance) Create() error {

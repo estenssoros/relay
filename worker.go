@@ -35,6 +35,7 @@ func (w *Worker) Start(ctx context.Context, taskQueue <-chan TaskInterface, eval
 			err := task.Run()
 			if err != nil {
 				logrus.Errorf("%s failed", task.FormattedID())
+				task.GetModel().Message = err.Error()
 				task.SetState(state.Failed)
 			} else {
 				logrus.Infof("%s success", task.FormattedID())
