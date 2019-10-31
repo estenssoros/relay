@@ -15,7 +15,6 @@ type Core struct {
 	RelayHome               string `yaml:"relay_home" json:"relay_home"`
 	DefaultTimeZone         string `yaml:"default_time_zone" json:"default_time_zone"`
 	Executor                string `yaml:"executor" json:"executor"`
-	SQLConn                 string `yaml:"sql_conn" json:"sql_conn"`
 	Parallelism             int    `yaml:"parallelism" json:"parallelism"`
 	DagConcurrency          int    `yaml:"dag_concurrency" json:"dag_concurrency"`
 	DagsArePausedAtCreation bool   `yaml:"dags_are_paused_at_creation" json:"dags_are_paused_at_creation"`
@@ -110,7 +109,6 @@ func createConfig(path string) error {
 			RelayHome:               path,
 			DefaultTimeZone:         "utc",
 			Executor:                defaultExecutor,
-			SQLConn:                 defaultSQLConn,
 			Parallelism:             defaultParrallelism,
 			DagConcurrency:          defaultDagConcurrency,
 			DagsArePausedAtCreation: false,
