@@ -1,10 +1,187 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    </head>
-    <body>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <title>Relay</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/public/styles.css">
+
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- Vue.js -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.7.0/vue-resource.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Relay</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">Dags <span class="sr-only">(current)</span></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                aria-haspopup="true" aria-expanded="false">Data Profiling <span
+                                    class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Ad Hoc Query</a></li>
+                                <li><a href="#">Charts</a></li>
+                                <li><a href="#">Known Events</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                aria-haspopup="true" aria-expanded="false">Browse <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">SLA Misses</a></li>
+                                <li><a href="#">Task Instances</a></li>
+                                <li><a href="#">Logs</a></li>
+                                <li><a href="#">Jobs</a></li>
+                                <li><a href="#">DAG Runs</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Pools</a></li>
+                                <li><a href="#">Configuration</a></li>
+                                <li><a href="#">Users</a></li>
+                                <li><a href="#">Connections</a></li>
+                                <li><a href="#">Variables</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#">
+                                {{ dateNow }}
+                            </a>
+                        </li>
+                        <li>
+                            <button v-on:click="kill" class="btn btn-danger" style="margin-top:10px; padding:5px">
+                                <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                            </button>
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
         <div class="container">
-            <h1>Ooops.</h1>
+            <table class="table table-bordered">
+                <tr>
+                    <th class="text-center">Active</th>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th class="text-center">Schedule</th>
+                    <th>Last Run</th>
+                </tr>
+                <template v-for="dag in dags">
+                    <tr>
+                        <td align="center">
+                            <label class="switchSmall2 m5">
+                                <input type="checkbox" v-model="dag.IsPaused" v-on:change="toggleDag(dag.ID, dag.IsPaused)">
+                                <small></small>
+                            </label>
+                        </td>
+                        <td><a :href="'/dags/' + dag.ID">{{dag.ID}}</a></td>
+                        <td>{{dag.Description}}</td>
+                        <td align="center">
+                            <div class="schedule-interval">
+                                {{dag.ScheduleInterval}}
+                            </div>
+                        </td>
+                        <td>{{dag.LastSchedulerRun}}</td>
+                    </tr>
+                </template>
+            </table>
         </div>
-    </body>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+
+            data: {
+                dateNow: moment().format(),
+                dags: []
+            },
+
+            // This is run whenever the page is loaded to make sure we have a current task list
+            created: function () {
+                setInterval(this.updateTime, 1000)
+                this.listDags()
+            },
+
+            methods: {
+                listDags: function () {
+                    axios.get("/api/dags").then(response => {
+                        var data = response.data
+                        for (var i = 0; i < data.length; i++) {
+                            var ts = moment(data[i].LastSchedulerRun)
+                            data[i].LastSchedulerRun = ts.fromNow()
+                        }
+                        this.dags = data
+                    }).catch(error => {
+                        console.log(error)
+                    })
+                },
+
+                updateTime: () => {
+                    this.dateNow = moment().format()
+                },
+                kill: function () {
+                    axios.post("/api/kill").then(response => {
+
+                    }).catch(error => {
+                        console.log(error)
+                    })
+                },
+
+                toggleDag: (dagID) => {
+                    console.log(dagID)
+                    var paused = false
+                    console.log(this)
+                    for (var i = 0; i < this.dags.length; i++) {
+                        if (this.dags[i].ID == dagID) {
+                            paused = !this.dags[i].IsPaused
+                            this.dags[i].IsPaused = paused
+                        }
+                    }
+                    axios.post("/api/dag-toggle", { 
+                        dagID: dagID,
+                        paused: paused
+                    }
+                    ).then(resposne=>{
+                        console.log(resposne)
+                    }).catch(error=>{
+                        console.log(error)
+                    })
+                },
+
+            }
+        })
+    </script>
+</body>
+
 </html>
