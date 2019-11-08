@@ -69,6 +69,14 @@ type TaskRunner struct {
 	workers        []*Worker
 }
 
+// Check to see if the task runner can run tasks
+func (r *TaskRunner) Check() error {
+	if config.DefaultConfig.Core.Parallelism == 0 {
+		return errors.New("parallelism set to 0: no tasks will run")
+	}
+	return nil
+}
+
 // NewTaskRunner creates a new task runner
 func NewTaskRunner(tasks map[string]TaskInterface) *TaskRunner {
 	return &TaskRunner{

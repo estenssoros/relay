@@ -75,6 +75,9 @@ func (d *DAG) Run(ctx context.Context, dagRun *models.DagRun) (err error) {
 	start := time.Now()
 
 	runner := NewTaskRunner(d.tasks)
+	if err := runner.Check(); err != nil {
+		return errors.Wrap(err, "runner check")
+	}
 	var w sync.WaitGroup
 	w.Add(1)
 
