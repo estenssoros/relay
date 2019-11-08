@@ -100,9 +100,6 @@ func (s *Scheduler) updateDagNextRun(dagID string) error {
 // Run starts the scheduler and dag runner
 // Creates a context that listens for an os.interrupt to terminate running go routines
 func (s *Scheduler) Run() error {
-	webServer := NewWebserver(s.Dags)
-	go webServer.Serve()
-
 	logrus.Infof("starting scheduler heartbeat: %d seconds", config.DefaultConfig.Scheduler.SchedulerHeartBeatSec)
 	if err := s.setDagNextRun(); err != nil {
 		return errors.Wrap(err, "set dag time map")
@@ -110,6 +107,9 @@ func (s *Scheduler) Run() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	webServer := NewWebserver(s.Dags)
+	go webServer.Serve(ctx)
 
 	dagChan := make(chan string)
 
